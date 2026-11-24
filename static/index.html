@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALICE Prompt Challenge</title>
+  <link rel="icon" type="image/webp" href="/static/assets/magical-scroll.webp?v=2" />
+  <link rel="preload" href="/static/fonts/Alice_in_Wonderland_3.ttf" as="font" type="font/ttf" crossorigin />
+  <link rel="preload" href="/static/fonts/GoogleSansFlex.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="/static/css/styles.css?v=47" />
+</head>
+
+<body>
+  <div class="app-loading-screen" id="app-loading">
+    <div class="loader">
+      <div class="mark"></div>
+    </div>
+    <div class="home-footer">
+      ALICE Prompt Challenge
+    </div>
+  </div>
+
+  <div class="app">
+    <aside class="side-panel" id="side-panel">
+      <div class="side-panel__header">
+        <div class="side-panel__logo brand-text">ALICE Prompt Challenge</div>
+        <div class="side-panel__tagline">BLIND PROMPT ARENA</div>
+      </div>
+
+      <nav class="side-panel__nav" aria-label="Primary navigation">
+        <a href="#arena" class="nav-link active" data-page="arena" id="nav-arena">
+          <span class="nav-link__icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="square" stroke-linejoin="miter">
+              <rect x="3" y="3" width="8" height="8" />
+              <rect x="13" y="3" width="8" height="8" />
+              <rect x="3" y="13" width="8" height="8" />
+              <rect x="13" y="13" width="8" height="8" />
+            </svg>
+          </span>
+          Arena
+        </a>
+        <a href="#leaderboard" class="nav-link" data-page="leaderboard" id="nav-leaderboard">
+          <span class="nav-link__icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="square" stroke-linejoin="miter">
+              <path d="M4 20h16" />
+              <rect x="5" y="11" width="3" height="9" />
+              <rect x="10.5" y="5" width="3" height="15" />
+              <rect x="16" y="14" width="3" height="6" />
+            </svg>
+          </span>
+          Leaderboard
+          <span class="nav-badge" id="nav-leaderboard-count">0</span>
+        </a>
+      </nav>
+
+      <div class="side-panel__footer">
+        <div class="engine-pill">
+          <span class="engine-pill__label">IMAGE ENGINE</span>
+          <span class="engine-pill__value" id="engine-status-text">Checking...</span>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm btn-full" id="btn-open-host-modal">
+          Host Settings
+        </button>
+      </div>
+    </aside>
+
+    <div class="panel-overlay" id="panel-overlay"></div>
+
+    <div class="main-content">
+      <button type="button" class="hamburger" id="hamburger" aria-label="Toggle navigation">
+        <span class="hamburger__line"></span>
+        <span class="hamburger__line"></span>
+        <span class="hamburger__line"></span>
+      </button>
+
+      <section class="page active" id="page-arena">
+        <div class="arena-hero" id="arena-hero">
+          <div class="arena-hero__inner">
+            <h1 class="page__title">ALICE Prompt Challenge</h1>
+            <p class="page__subtitle">Blindly pick from 10 shuffled AI images and recreate the visual with creative
+              prompts.</p>
+          </div>
+        </div>
+
+        <div class="stepper" id="arena-stepper" aria-label="Round progress">
+          <div class="stepper__item active" data-step="name">
+            <span class="stepper__num">01</span>
+            <span class="stepper__label">IDENTITY</span>
+          </div>
+          <div class="stepper__item" data-step="pick">
+            <span class="stepper__num">02</span>
+            <span class="stepper__label">BLIND PICK</span>
+          </div>
+          <div class="stepper__item" data-step="prompt">
+            <span class="stepper__num">03</span>
+            <span class="stepper__label">RECREATE</span>
+          </div>
+          <div class="stepper__item" data-step="result">
+            <span class="stepper__num">04</span>
+            <span class="stepper__label">RESULT & RANK</span>
+          </div>
+        </div>
+
+        <div class="stage-toolbar-row" id="stage-toolbar-row" style="display: none;">
+          <div class="stage-toolbar__actions" id="pick-toolbar-actions" style="display: none;">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-reshuffle">
+              RE-SHUFFLE DECK
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-change-player">
+              CHANGE PLAYER
+            </button>
+          </div>
+          <div class="player-badge" id="player-badge">
+            <span id="active-player-name">PLAYER</span>
+          </div>
+        </div>
+
+        <div class="stage active" id="stage-name">
+          <div class="entry-split">
+            <div class="entry-leaderboard">
+              <div class="panel-header">
+                <span class="section-title-inline">LEADERBOARD</span>
+                <span class="mono-tag">ACCURACY</span>
+              </div>
+              <div id="home-leaderboard-container"></div>
+            </div>
+
+            <div class="entry-box">
+              <h2 class="entry-box__title">Enter Your Name to Begin</h2>
+              <p class="entry-box__desc">
+                All 10 AI-generated images are randomly shuffled and hidden face-down after every round.
+                Pick one card blindly, study the revealed reference, and craft a prompt to match it.
+              </p>
+              <form id="form-start-round" class="entry-form" autocomplete="off">
+                <div class="form-group">
+                  <label class="form-group__label" for="player-name-input">PLAYER NAME</label>
+                  <input type="text" id="player-name-input" class="form-group__input"
+                    placeholder="Enter your name (e.g. Alex Tan)" maxlength="40" required />
+                </div>
+                <button type="submit" class="btn-submit" id="btn-start-round">
+                  ENTER CHALLENGE
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage" id="stage-pick">
+          <p class="stage-toolbar__hint">Select one hidden card below. Selection locks immediately.</p>
+
+          <div class="blind-grid" id="blind-grid" role="list"></div>
+        </div>
+
+        <div class="stage" id="stage-prompt">
+          <div class="split-workspace">
+            <div class="workspace-col workspace-col--ref">
+              <div class="panel-header">
+                <span class="section-title-inline">REFERENCE IMAGE</span>
+                <span class="mono-tag" id="prompt-slot-badge">SLOT #01</span>
+              </div>
+              <div class="image-frame image-frame--recreate" id="reference-frame">
+                <img id="reference-image" src="" alt="Revealed reference AI image" />
+                <button type="button" class="image-zoom-btn" id="btn-zoom-ref" title="Inspect full size">
+                  EXPAND
+                </button>
+              </div>
+            </div>
+
+            <div class="workspace-col">
+              <div class="panel-header">
+                <span class="section-title-inline">ENTER YOUR PROMPT</span>
+              </div>
+              <form id="form-submit-prompt" class="prompt-form" novalidate>
+                <div class="prompt-textarea-wrap">
+                  <textarea id="prompt-input" class="prompt-textarea"
+                    placeholder="Write a detailed prompt to recreate the reference image on the left. Include the main subject, environment, lighting, color palette, camera angle, and artistic medium..."
+                    maxlength="800"></textarea>
+                  <span class="prompt-char-count" id="prompt-char-count">0 / 800</span>
+                </div>
+                <div class="prompt-tips">
+                  <span>TIP: SUBJECT + SETTING + LIGHTING + COLORS + STYLE</span>
+                  <span>CTRL + ENTER TO SUBMIT</span>
+                </div>
+                <button type="submit" class="btn-submit" id="btn-submit-prompt">
+                  GENERATE IMAGE
+                </button>
+              </form>
+
+              <div class="countdown-widget" id="countdown-widget">
+                <div class="hourglass-box" aria-hidden="true">
+                  <svg class="hourglass-svg" viewBox="0 0 48 64" width="38" height="50">
+                    <defs>
+                      <clipPath id="hg-top-clip">
+                        <path d="M 11 10 Q 9 10 10.5 12 L 22.5 29.5 Q 24 31.5 25.5 29.5 L 37.5 12 Q 39 10 37 10 Z" />
+                      </clipPath>
+                      <clipPath id="hg-bottom-clip">
+                        <path d="M 11 54 Q 9 54 10.5 52 L 22.5 34.5 Q 24 32.5 25.5 34.5 L 37.5 52 Q 39 54 37 54 Z" />
+                      </clipPath>
+                    </defs>
+                    <g clip-path="url(#hg-top-clip)">
+                      <rect class="hg-fill-top" x="8" y="9" width="32" height="24" fill="#000000" />
+                    </g>
+                    <g clip-path="url(#hg-bottom-clip)">
+                      <rect class="hg-fill-bottom" x="8" y="31" width="32" height="24" fill="#000000" />
+                    </g>
+                    <line class="hg-stream" x1="24" y1="32" x2="24" y2="54" stroke="#000000" stroke-width="2"
+                      stroke-linecap="round" />
+                    <path d="M 10 9 Q 8 9 9.5 11.5 L 22.2 30 Q 24 32 25.8 30 L 38.5 11.5 Q 40 9 38 9 Z" fill="none"
+                      stroke="#000000" stroke-width="2.4" stroke-linejoin="round" />
+                    <path d="M 10 55 Q 8 55 9.5 52.5 L 22.2 34 Q 24 32 25.8 34 L 38.5 52.5 Q 40 55 38 55 Z" fill="none"
+                      stroke="#000000" stroke-width="2.4" stroke-linejoin="round" />
+                  </svg>
+                </div>
+                <div class="countdown-meta">
+                  <span class="countdown-label">TIME REMAINING</span>
+                  <div class="countdown-value-row">
+                    <span class="countdown-seconds" id="countdown-seconds">60</span>
+                    <span class="countdown-unit">S</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="generating-box" id="generating-box" style="display: none;">
+                <div class="generating-box__bar">
+                  <div class="generating-box__fill"></div>
+                </div>
+                <div class="generating-box__status" id="generating-status-text">
+                  Generating image from your prompt...
+                </div>
+                <div class="generating-box__sub">
+                  Comparing ResNet50 semantic features, neural style, CIE-LAB color & layout
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage" id="stage-result">
+          <div class="result-split">
+            <div class="result-left">
+              <div class="inline-leaderboard">
+                <div class="panel-header">
+                  <span class="section-title-inline">LEADERBOARD</span>
+                </div>
+                <div id="result-leaderboard-container"></div>
+              </div>
+
+              <div class="result-actions">
+                <button type="button" class="btn-submit" id="btn-play-next-round">
+                  PLAY NEXT ROUND →
+                </button>
+                <button type="button" class="btn btn-outline" id="btn-view-full-leaderboard">
+                  VIEW FULL LEADERBOARD
+                </button>
+              </div>
+            </div>
+
+            <div class="result-right">
+              <div class="result-summary">
+                <div class="result-summary__score-block">
+                  <div class="eyebrow">SIMILARITY SCORE</div>
+                  <div class="result-score-value" id="result-overall-score">0.0%</div>
+                  <div class="score-meter">
+                    <div class="score-meter__fill" id="result-overall-bar" style="width: 0%;"></div>
+                  </div>
+                </div>
+
+                <div class="result-summary__meta-grid">
+                  <div class="meta-cell">
+                    <span class="meta-cell__label">PLAYER</span>
+                    <span class="meta-cell__value" id="result-player-name">—</span>
+                  </div>
+                  <div class="meta-cell">
+                    <span class="meta-cell__label">LEADERBOARD RANK</span>
+                    <span class="meta-cell__value" id="result-rank-badge">#1 OF 1</span>
+                  </div>
+                  <div class="meta-cell">
+                    <span class="meta-cell__label">GENERATOR ENGINE</span>
+                    <span class="meta-cell__value" id="result-engine-source">—</span>
+                  </div>
+                  <div class="meta-cell">
+                    <span class="meta-cell__label">BLIND SLOT</span>
+                    <span class="meta-cell__value" id="result-slot-code">—</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="comparison-grid">
+                <div class="comparison-card">
+                  <div class="panel-header">
+                    <span class="section-title-inline">REFERENCE IMAGE</span>
+                    <span class="mono-tag">TARGET</span>
+                  </div>
+                  <div class="image-frame">
+                    <img id="result-ref-img" src="" alt="Reference target image" />
+                  </div>
+                </div>
+
+                <div class="comparison-card">
+                  <div class="panel-header">
+                    <span class="section-title-inline">GENERATED IMAGE</span>
+                    <span class="mono-tag">YOUR RECREATION</span>
+                  </div>
+                  <div class="image-frame">
+                    <img id="result-gen-img" src="" alt="Generated recreation image" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="submitted-prompt-box">
+                <span class="submitted-prompt-box__label">SUBMITTED PROMPT</span>
+                <p class="submitted-prompt-box__text" id="result-prompt-text"></p>
+              </div>
+
+              <div class="breakdown-grid">
+                <div class="breakdown-card">
+                  <div class="breakdown-card__head">
+                    <span>SEMANTIC CONTENT</span>
+                    <span class="mono-tag">45% WEIGHT</span>
+                  </div>
+                  <div class="breakdown-card__val" id="score-semantic">0.0%</div>
+                  <div class="score-meter score-meter--sm">
+                    <div class="score-meter__fill" id="bar-semantic" style="width: 0%;"></div>
+                  </div>
+                </div>
+                <div class="breakdown-card">
+                  <div class="breakdown-card__head">
+                    <span>STYLE & TEXTURE</span>
+                    <span class="mono-tag">20% WEIGHT</span>
+                  </div>
+                  <div class="breakdown-card__val" id="score-style">0.0%</div>
+                  <div class="score-meter score-meter--sm">
+                    <div class="score-meter__fill" id="bar-style" style="width: 0%;"></div>
+                  </div>
+                </div>
+                <div class="breakdown-card">
+                  <div class="breakdown-card__head">
+                    <span>COLOR & LIGHTING</span>
+                    <span class="mono-tag">20% WEIGHT</span>
+                  </div>
+                  <div class="breakdown-card__val" id="score-color">0.0%</div>
+                  <div class="score-meter score-meter--sm">
+                    <div class="score-meter__fill" id="bar-color" style="width: 0%;"></div>
+                  </div>
+                </div>
+                <div class="breakdown-card">
+                  <div class="breakdown-card__head">
+                    <span>COMPOSITION</span>
+                    <span class="mono-tag">15% WEIGHT</span>
+                  </div>
+                  <div class="breakdown-card__val" id="score-composition">0.0%</div>
+                  <div class="score-meter score-meter--sm">
+                    <div class="score-meter__fill" id="bar-composition" style="width: 0%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-leaderboard">
+        <div class="page-header-row">
+          <div>
+            <h1 class="page__title">Leaderboard</h1>
+            <p class="page__subtitle">Highest visual similarity scores across all blind rounds. Top 3 positions are
+              highlighted.</p>
+          </div>
+          <div class="page-header-actions">
+            <button type="button" class="btn btn-outline btn-sm" id="btn-refresh-leaderboard">
+              REFRESH
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" id="btn-go-play">
+              PLAY ROUND →
+            </button>
+          </div>
+        </div>
+
+        <div id="podium-container" class="podium-grid"></div>
+        <div id="leaderboard-table-container"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="lightbox-overlay">
+    <div class="modal modal--wide" role="dialog" aria-modal="true" aria-label="Reference image inspection">
+      <div class="modal__header">
+        <h2 class="modal__title">REFERENCE INSPECTION</h2>
+        <button type="button" class="modal__close" id="lightbox-close" aria-label="Close inspection">
+          <svg viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+      <div class="lightbox-body">
+        <img id="lightbox-img" src="" alt="Expanded reference image" />
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="host-modal-overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="host-modal-title">
+      <div class="modal__header">
+        <h2 class="modal__title" id="host-modal-title">HOST SETTINGS</h2>
+        <button type="button" class="modal__close" id="host-modal-close" aria-label="Close modal">
+          <svg viewBox="0 0 24 24">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <p class="host-modal__desc">
+        Default mode runs locally on GPU (DreamShaper-8 + Hyper-SD) with cloud multi-AI and offline fallbacks.
+        Optionally add API tokens below to route through cloud providers instead.
+      </p>
+
+      <form id="form-host-keys">
+        <div class="form-group">
+          <label class="form-group__label" for="key-hf">HUGGING FACE TOKEN (FREE TIER OPTIONAL)</label>
+          <input type="password" class="form-group__input" id="key-hf"
+            placeholder="hf_... (unlocks extra Z-Image / FLUX quota)" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label class="form-group__label" for="key-cf-account">CLOUDFLARE ACCOUNT ID (FREE TIER OPTIONAL)</label>
+          <input type="text" class="form-group__input" id="key-cf-account" placeholder="Leave blank if unused"
+            autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label class="form-group__label" for="key-cf-token">CLOUDFLARE API TOKEN (FREE TIER OPTIONAL)</label>
+          <input type="password" class="form-group__input" id="key-cf-token" placeholder="Leave blank if unused"
+            autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label class="form-group__label" for="key-gemini">GEMINI API KEY (OPTIONAL)</label>
+          <input type="password" class="form-group__input" id="key-gemini" placeholder="Leave blank if unused"
+            autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label class="form-group__label" for="key-openai">OPENAI API KEY (OPTIONAL)</label>
+          <input type="password" class="form-group__input" id="key-openai" placeholder="Leave blank if unused"
+            autocomplete="off" />
+        </div>
+        <button type="submit" class="btn-submit" id="btn-save-keys">SAVE ENGINE SETTINGS</button>
+      </form>
+
+      <div class="host-divider"></div>
+
+      <div class="host-danger-row">
+        <div>
+          <div class="host-danger-row__title">Reset Leaderboard</div>
+          <div class="host-danger-row__sub">Remove all recorded player scores from SQLite.</div>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" id="btn-reset-leaderboard">
+          CLEAR SCORES
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="challenge-failed-overlay" id="challenge-failed-overlay" aria-live="assertive" aria-hidden="true">
+    <div class="challenge-failed-banner">
+      <div class="challenge-failed-text">CHALLENGE FAILED</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="/static/js/app.js?v=25"></script>
+</body>
+
+</html>
